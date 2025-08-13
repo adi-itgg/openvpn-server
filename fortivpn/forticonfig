@@ -1,0 +1,6 @@
+### configuration file for openfortivpn, see man openfortivpn(1) ###
+
+host = x.x.x.x
+port = 443
+#set-routes = 0
+trusted-cert = 6bdbd5e45f6d26987b249a227ef350e3b6d9783fde1e4a2195c3d634e58b401d
