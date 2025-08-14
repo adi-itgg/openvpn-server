@@ -6,7 +6,7 @@ WORKDIR /go/src/app/server
 
 # Copy the Go module files and download dependencies from root project
 COPY server/go.mod ./
-RUN go mod download
+RUN go mod tidy
 
 # Copy the entire 'server' directory and build the application
 COPY server/ .
