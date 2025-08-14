@@ -5,7 +5,7 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /go/src/app
 
 # Copy the Go module files and download dependencies from root project
-COPY server/go.mod server/go.sum ./
+COPY server/go.mod ./
 RUN go mod download
 
 # Copy the entire 'server' directory and build the application
