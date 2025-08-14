@@ -5,12 +5,11 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /go/src/app
 
 # Copy the Go module files and download dependencies from root project
-# Pastikan go.mod dan go.sum ada di root project, bukan di dalam 'server'
-COPY go.mod go.sum ./
+COPY server/go.mod server/go.sum ./
 RUN go mod download
 
 # Copy the entire 'server' directory and build the application
-COPY server server/
+COPY server/ .
 WORKDIR /go/src/app/server
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w" -o /go/bin/server .
 
