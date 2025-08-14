@@ -13,7 +13,7 @@ RUN go mod download
 COPY server/ .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w" -o /go/bin/server .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w" -o /go/src/app/server .
 
 # Start from Alpine base image
 FROM alpine
@@ -35,7 +35,7 @@ COPY docker-entrypoint.sh /opt/app/docker-entrypoint.sh
 COPY fortivpn/forticonfig /opt/app/forticonfig
 COPY fortivpn/openfortivpn /usr/bin/openfortivpn
 
-COPY --from=builder /go/bin/server /opt/app/bin/
+COPY --from=builder /go/src/app/server /opt/app/bin/
 
 RUN chmod +x /usr/bin/openfortivpn
 RUN mkdir -p /opt/app/clients \
