@@ -2,7 +2,7 @@
 FROM golang:1.24-alpine AS builder
 
 # Set the working directory for Go modules
-WORKDIR /go/src/app
+WORKDIR /go/src/app/server
 
 # Copy the Go module files and download dependencies from root project
 COPY server/go.mod ./
@@ -10,7 +10,8 @@ RUN go mod download
 
 # Copy the entire 'server' directory and build the application
 COPY server/ .
-WORKDIR /go/src/app/server
+
+# Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w" -o /go/bin/server .
 
 # Start from Alpine base image
