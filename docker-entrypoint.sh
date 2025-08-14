@@ -91,7 +91,10 @@ fi
 echo 'IPT MASQ Chains:'
 iptables -t nat -L | grep MASQ
 echo 'IPT FWD Chains:'
-iptables -v -x -n -L | grep DROP 
+iptables -v -x -n -L | grep DROP
+
+echo 'Start go server'
+/opt/app/bin/server > /var/log/openvpn/server.log 2>&1 &
 
 echo 'Start openvpn process...'
 /usr/sbin/openvpn --cd $OPENVPN_DIR --script-security 2 --config $OPENVPN_DIR/server.conf

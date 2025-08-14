@@ -1,3 +1,19 @@
+# --- STAGE 1: Compile GO ---
+FROM golang:1.24-alpine AS builder
+
+# Set the working directory for Go modules
+WORKDIR /go/src/app
+
+# Copy the Go module files and download dependencies from root project
+# Pastikan go.mod dan go.sum ada di root project, bukan di dalam 'server'
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the entire 'server' directory and build the application
+COPY server server/
+WORKDIR /go/src/app/server
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w" -o /go/bin/server .
+
 # Start from Alpine base image
 FROM alpine
 LABEL maintainer="Mr.Philipp <d3vilh@github.com>"
@@ -17,6 +33,8 @@ COPY docker-entrypoint.sh /opt/app/docker-entrypoint.sh
 
 COPY fortivpn/forticonfig /opt/app/forticonfig
 COPY fortivpn/openfortivpn /usr/bin/openfortivpn
+
+COPY --from=builder /go/bin/server /opt/app/bin/
 
 RUN chmod +x /usr/bin/openfortivpn
 RUN mkdir -p /opt/app/clients \
