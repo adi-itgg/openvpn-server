@@ -36,7 +36,7 @@ services:
        image: local/openvpn-ui:latest
        environment:
            - OPENVPN_ADMIN_USERNAME=admin
-           - OPENVPN_ADMIN_PASSWORD=gagaZush
+           - OPENVPN_ADMIN_PASSWORD=123qwe.
        privileged: true
        ports:
            - "8080:8080/tcp"
