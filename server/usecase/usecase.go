@@ -2,12 +2,14 @@ package usecase
 
 import (
 	"fmt"
-	"github.com/mitchellh/go-ps"
 	"log"
 	"os"
 	"os/exec"
 	"server/dto"
+	"server/pkg/network"
 	"strings"
+
+	"github.com/mitchellh/go-ps"
 )
 
 func NewUsecase() *Usecase {
@@ -108,4 +110,30 @@ func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
 	}
 
 	return nil
+}
+
+func (u *Usecase) Servers() (*dto.VPNServersResponse, error) {
+	vs := os.Getenv("VPN_SERVERS")
+	vpnServers := strings.Split(vs, ",")
+
+	ipPortServers := make([]string, 0)
+
+	for _, server := range vpnServers {
+		sp := strings.Split(server, ":")
+		host := sp[0]
+		port := ""
+		if len(sp) > 1 {
+			port = sp[1]
+		}
+		ip := network.GetIPFormDNS(host)
+		if port == "" {
+			ipPortServers = append(ipPortServers, host+" ("+ip+")")
+			continue
+		}
+		ipPortServers = append(ipPortServers, host+":"+port+" ("+ip+":"+port+")")
+	}
+
+	return &dto.VPNServersResponse{
+		Servers: ipPortServers,
+	}, nil
 }

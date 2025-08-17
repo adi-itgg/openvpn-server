@@ -18,4 +18,8 @@ type (
 		Port   string `json:"port"`
 		Cookie string `json:"cookie"`
 	}
+
+	VPNServersResponse struct {
+		Servers []string `json:"servers"`
+	}
 )

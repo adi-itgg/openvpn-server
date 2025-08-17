@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
 	controller2 "server/controller"
 	usecase2 "server/usecase"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -27,6 +28,7 @@ func main() {
 	usecase := usecase2.NewUsecase()
 	controller := controller2.NewController(usecase)
 
+	r.Get("/api/servers", controller.Servers)
 	r.Get("/api/status", controller.Status)
 	r.Post("/api/activate", controller.Activate)
 
