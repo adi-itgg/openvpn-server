@@ -13,7 +13,7 @@ RUN go mod download
 COPY server/ .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w" -o /go/src/app/server .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /go/src/app/server .
 
 # Start from Alpine base image
 FROM alpine
