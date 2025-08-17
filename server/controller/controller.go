@@ -63,4 +63,5 @@ func (c *Controller) Activate(w http.ResponseWriter, r *http.Request) {
 		httputil.ResponseError(w, err)
 		return
 	}
+	httputil.ResponseOK(w, nil)
 }
