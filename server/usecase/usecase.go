@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -77,23 +78,14 @@ func (u *Usecase) Status() (*dto.VPNStatusResponse, error) {
 }
 
 func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
-	f, err := os.ReadFile("/opt/app/forticonfig")
-	if err != nil {
-		return err
+	if len(body.Cookie) <= 2000 || len(body.Cookie) > 3000 {
+		return fmt.Errorf("invalid cookie")
 	}
 
-	content := string(f)
-	newContent := ""
-	for _, line := range strings.Split("\n", content) {
-		if strings.Contains(line, "host") {
-			line = "host = " + body.Host
-		} else if strings.Contains(line, "port") {
-			line = "port = " + body.Port
-		}
-		newContent += line + "\n"
-	}
+	fortiConfigPath := "/opt/app/forticonfig"
+	newContent := readFileAndReplaceHostPort(fortiConfigPath, body.Host, body.Port)
 
-	err = os.WriteFile("/opt/app/forticonfig", []byte(content), 0644)
+	err := os.WriteFile(fortiConfigPath, []byte(newContent), 0644)
 	if err != nil {
 		fmt.Printf("Write file failed: %v\n", err)
 		return err
@@ -131,4 +123,36 @@ func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
 	}
 
 	return nil
+}
+
+func readFileAndReplaceHostPort(filename, host, port string) string {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return string(data)
+	}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return string(data)
+	}
+	defer file.Close()
+
+	var result strings.Builder
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(strings.TrimSpace(line), "host =") {
+			line = "host = " + host
+		} else if strings.HasPrefix(strings.TrimSpace(line), "port =") {
+			line = "port = " + port
+		}
+		result.WriteString(line + "\n")
+	}
+
+	if err := scanner.Err(); err != nil {
+		return string(data)
+	}
+
+	return result.String()
 }
