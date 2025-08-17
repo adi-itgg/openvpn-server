@@ -23,15 +23,6 @@ type Controller struct {
 	usecase *usecase.Usecase
 }
 
-func (c *Controller) Servers(w http.ResponseWriter, r *http.Request) {
-	data, err := c.usecase.Servers()
-	if err != nil {
-		httputil.ResponseError(w, err)
-		return
-	}
-	httputil.ResponseOK(w, data)
-}
-
 func (c *Controller) Status(w http.ResponseWriter, r *http.Request) {
 	data, err := c.usecase.Status()
 	if err != nil {

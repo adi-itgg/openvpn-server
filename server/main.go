@@ -28,7 +28,6 @@ func main() {
 	usecase := usecase2.NewUsecase()
 	controller := controller2.NewController(usecase)
 
-	r.Get("/api/servers", controller.Servers)
 	r.Get("/api/status", controller.Status)
 	r.Post("/api/activate", controller.Activate)
 

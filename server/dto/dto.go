@@ -8,18 +8,15 @@ type (
 	}
 
 	VPNStatusResponse struct {
-		Active bool   `json:"active"`
-		Server string `json:"server"`
-		Logs   string `json:"logs"`
+		Active  bool     `json:"active"`
+		Server  string   `json:"server"`
+		Logs    string   `json:"logs"`
+		Servers []string `json:"servers"`
 	}
 
 	VPNActivateRequest struct {
 		Host   string `json:"host"`
 		Port   string `json:"port"`
 		Cookie string `json:"cookie"`
-	}
-
-	VPNServersResponse struct {
-		Servers []string `json:"servers"`
 	}
 )

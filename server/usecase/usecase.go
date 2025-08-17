@@ -52,6 +52,27 @@ func (u *Usecase) Status() (*dto.VPNStatusResponse, error) {
 		fmt.Printf("Error reading file forticonfig: %v\n", err)
 	}
 
+	vs := os.Getenv("VPN_SERVERS")
+	vpnServers := strings.Split(vs, ",")
+
+	ipPortServers := make([]string, 0)
+
+	for _, server := range vpnServers {
+		sp := strings.Split(server, ":")
+		host := sp[0]
+		port := ""
+		if len(sp) > 1 {
+			port = sp[1]
+		}
+		ip := network.GetIPFormDNS(host)
+		if port == "" {
+			ipPortServers = append(ipPortServers, host+" ("+ip+")")
+			continue
+		}
+		ipPortServers = append(ipPortServers, host+":"+port+" ("+ip+":"+port+")")
+	}
+	data.Servers = ipPortServers
+
 	return &data, nil
 }
 
@@ -110,30 +131,4 @@ func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
 	}
 
 	return nil
-}
-
-func (u *Usecase) Servers() (*dto.VPNServersResponse, error) {
-	vs := os.Getenv("VPN_SERVERS")
-	vpnServers := strings.Split(vs, ",")
-
-	ipPortServers := make([]string, 0)
-
-	for _, server := range vpnServers {
-		sp := strings.Split(server, ":")
-		host := sp[0]
-		port := ""
-		if len(sp) > 1 {
-			port = sp[1]
-		}
-		ip := network.GetIPFormDNS(host)
-		if port == "" {
-			ipPortServers = append(ipPortServers, host+" ("+ip+")")
-			continue
-		}
-		ipPortServers = append(ipPortServers, host+":"+port+" ("+ip+":"+port+")")
-	}
-
-	return &dto.VPNServersResponse{
-		Servers: ipPortServers,
-	}, nil
 }
