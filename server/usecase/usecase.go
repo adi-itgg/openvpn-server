@@ -36,21 +36,9 @@ func (u *Usecase) Status() (*dto.VPNStatusResponse, error) {
 		fmt.Printf("Error reading file forti.log: %v\n", err)
 	}
 
-	f, err = os.ReadFile("/opt/app/forticonfig")
-	if err == nil {
-		host := ""
-		port := ""
-		content := string(f)
-		for _, line := range strings.Split("\n", content) {
-			if strings.Contains(line, "host") {
-				host = strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "host=", ""))
-			} else if strings.Contains(line, "port") {
-				port = strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "port=", ""))
-			}
-		}
-		data.Server = host + ":" + port
-	} else {
-		fmt.Printf("Error reading file forticonfig: %v\n", err)
+	h, p := readFileHostPort("/opt/app/forticonfig")
+	if h != "" && p != "" {
+		data.Server = h + ":" + p
 	}
 
 	vs := os.Getenv("VPN_SERVERS")
@@ -84,6 +72,7 @@ func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
 
 	fortiConfigPath := "/opt/app/forticonfig"
 	newContent := readFileAndReplaceHostPort(fortiConfigPath, body.Host, body.Port)
+	fmt.Printf("New content for forticonfig: %s\n", newContent)
 
 	err := os.WriteFile(fortiConfigPath, []byte(newContent), 0644)
 	if err != nil {
@@ -133,6 +122,7 @@ func readFileAndReplaceHostPort(filename, host, port string) string {
 
 	file, err := os.Open(filename)
 	if err != nil {
+		fmt.Printf("Error opening file: %v\n", err)
 		return string(data)
 	}
 	defer file.Close()
@@ -155,4 +145,35 @@ func readFileAndReplaceHostPort(filename, host, port string) string {
 	}
 
 	return result.String()
+}
+
+func readFileHostPort(filename string) (host string, port string) {
+	host = ""
+	port = ""
+
+	file, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	var result strings.Builder
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(strings.TrimSpace(line), "host =") {
+			host = strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "host=", ""))
+		} else if strings.HasPrefix(strings.TrimSpace(line), "port =") {
+			port = strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "port=", ""))
+		}
+		result.WriteString(line + "\n")
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("Error reading file scanner: %v\n", err)
+	}
+
+	return
 }
