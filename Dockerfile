@@ -35,7 +35,7 @@ COPY docker-entrypoint.sh /opt/app/docker-entrypoint.sh
 COPY fortivpn/forticonfig /opt/app/forticonfig
 COPY fortivpn/openfortivpn /usr/bin/openfortivpn
 
-COPY --from=builder /go/src/app/server /opt/app/bin/
+COPY --from=builder /go/src/app/server/server /opt/app/bin/
 
 RUN chmod +x /usr/bin/openfortivpn
 RUN mkdir -p /opt/app/clients \
