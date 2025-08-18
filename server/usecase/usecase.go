@@ -158,7 +158,6 @@ func readFileHostPort(filename string) (host string, port string) {
 	}
 	defer file.Close()
 
-	var result strings.Builder
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
@@ -168,7 +167,6 @@ func readFileHostPort(filename string) (host string, port string) {
 		} else if strings.HasPrefix(strings.TrimSpace(line), "port =") {
 			port = strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "port=", ""))
 		}
-		result.WriteString(line + "\n")
 	}
 
 	if err := scanner.Err(); err != nil {
