@@ -162,10 +162,11 @@ func readFileHostPort(filename string) (host string, port string) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(strings.TrimSpace(line), "host =") {
-			host = strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "host=", ""))
-		} else if strings.HasPrefix(strings.TrimSpace(line), "port =") {
-			port = strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "port=", ""))
+		line = strings.TrimSpace(strings.ReplaceAll(line, " ", ""))
+		if strings.HasPrefix(line, "host=") {
+			host = strings.ReplaceAll(line, "host=", "")
+		} else if strings.HasPrefix(line, "port=") {
+			port = strings.ReplaceAll(line, "port=", "")
 		}
 	}
 
