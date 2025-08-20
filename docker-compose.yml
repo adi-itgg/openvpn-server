@@ -25,6 +25,8 @@ services:
            - ./fw-rules.sh:/opt/app/fw-rules.sh
            - ./checkpsw.sh:/opt/app/checkpsw.sh
            - ./server.conf:/etc/openvpn/server.conf
+       devices:
+         - /dev/ppp:/dev/ppp
        cap_add:
            - NET_ADMIN
        restart: always
