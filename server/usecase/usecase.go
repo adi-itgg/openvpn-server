@@ -102,7 +102,7 @@ func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
 	}
 
 	// start vpn
-	command := `nohup openfortivpn --config /opt/app/forticonfig --cookie="` + body.Cookie + `" > /var/log/openvpn/forti.log 2>&1 &`
+	command := `nohup openfortivpn -v --config /opt/app/forticonfig --cookie="` + body.Cookie + `" > /var/log/openvpn/forti.log 2>&1 &`
 	cmd := exec.Command("/bin/sh", "-c", command)
 	err = cmd.Start()
 	if err != nil {
