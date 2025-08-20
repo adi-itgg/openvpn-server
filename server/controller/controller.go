@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"server/dto"
@@ -9,6 +8,7 @@ import (
 	"server/usecase"
 
 	"github.com/goccy/go-json"
+	"github.com/rs/zerolog/log"
 )
 
 func NewController(
@@ -38,13 +38,13 @@ func (c *Controller) Activate(w http.ResponseWriter, r *http.Request) {
 
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Printf("Read body failed: %v\n", err)
+		log.Err(err).Msg("Read body failed")
 		httputil.ResponseError(w, err)
 		return
 	}
 	err = json.Unmarshal(bodyBytes, &body)
 	if err != nil {
-		fmt.Printf("Marshal body failed: %v\n", err)
+		log.Err(err).Msg("Marshal body failed")
 		httputil.ResponseError(w, err)
 		return
 	}

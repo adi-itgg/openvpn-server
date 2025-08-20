@@ -2,8 +2,7 @@ package usecase
 
 import (
 	"bufio"
-	"fmt"
-	"log"
+	"errors"
 	"os"
 	"os/exec"
 	"server/dto"
@@ -11,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mitchellh/go-ps"
+	"github.com/rs/zerolog/log"
 )
 
 func NewUsecase() *Usecase {
@@ -33,7 +33,7 @@ func (u *Usecase) Status() (*dto.VPNStatusResponse, error) {
 		data.Active = strings.Contains(content, "Tunnel is up and running") && !strings.Contains(content, "VPN disconnected")
 		data.Logs = content
 	} else {
-		fmt.Printf("Error reading file forti.log: %v\n", err)
+		log.Err(err).Msg("Error reading file forti.log")
 	}
 
 	h, p := readFileHostPort("/opt/app/forticonfig")
@@ -67,29 +67,28 @@ func (u *Usecase) Status() (*dto.VPNStatusResponse, error) {
 
 func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
 	if len(body.Cookie) <= 2000 || len(body.Cookie) > 3000 {
-		return fmt.Errorf("invalid cookie")
+		return errors.New("invalid cookie")
 	}
 
 	fortiConfigPath := "/opt/app/forticonfig"
 	newContent := readFileAndReplaceHostPort(fortiConfigPath, body.Host, body.Port)
-	fmt.Printf("New content for forticonfig: %s\n", newContent)
 
 	err := os.WriteFile(fortiConfigPath, []byte(newContent), 0644)
 	if err != nil {
-		fmt.Printf("Write file failed: %v\n", err)
+		log.Err(err).Msg("Write file failed forticonfig")
 		return err
 	}
 
 	err = os.WriteFile("/opt/app/forti-cookie.txt", []byte(body.Cookie), 0644)
 	if err != nil {
-		fmt.Printf("Write file failed: %v\n", err)
+		log.Err(err).Msg("Write file failed forti-cookie.txt")
 		return err
 	}
 
 	// stop current vpn
 	processes, err := ps.Processes()
 	if err != nil {
-		fmt.Println("Error getting processes:", err)
+		log.Err(err).Msg("Error getting processes")
 		return err
 	}
 	targetProcessName := "openfortivpn"
@@ -122,7 +121,7 @@ func readFileAndReplaceHostPort(filename, host, port string) string {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Printf("Error opening file: %v\n", err)
+		log.Err(err).Msg("Error opening file")
 		return string(data)
 	}
 	defer file.Close()
@@ -153,14 +152,14 @@ func readFileHostPort(filename string) (host string, port string) {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Printf("Error opening file: %v\n", err)
+		log.Err(err).Str("filename", filename).Msg("Error opening file")
 		return
 	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 
-	fmt.Printf("Reading host and port from Cfg File: %s\n", filename)
+	log.Info().Msgf("Reading host and port from Cfg File: %s", filename)
 	for scanner.Scan() {
 		line := scanner.Text()
 		line = strings.TrimSpace(strings.ReplaceAll(line, " ", ""))
@@ -169,11 +168,11 @@ func readFileHostPort(filename string) (host string, port string) {
 		} else if strings.HasPrefix(line, "port=") {
 			port = strings.ReplaceAll(line, "port=", "")
 		}
-		fmt.Printf("Cfg Line: %s - Host: %s, Port: %s\n", line, host, port)
+		log.Info().Msgf("Cfg Line: %s - Host: %s, Port: %s", line, host, port)
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Printf("Error reading file scanner: %v\n", err)
+		log.Err(err).Msg("Error reading file scanner")
 	}
 
 	return

@@ -1,17 +1,28 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+	"os"
 	controller2 "server/controller"
+	"server/pkg/logger"
 	usecase2 "server/usecase"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	debug := os.Getenv("APP_DEBUG")
+
+	if debug == "true" {
+		logger.InitializeLogger(zerolog.TraceLevel)
+	} else {
+		logger.InitializeLogger(zerolog.InfoLevel)
+	}
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -33,7 +44,7 @@ func main() {
 
 	listenPort := "1195"
 
-	fmt.Printf("Listening on port %s\n", listenPort)
+	log.Info().Msgf("Listening on port %s", listenPort)
 	err := http.ListenAndServe(":"+listenPort, r)
 	if err != nil {
 		panic(err)

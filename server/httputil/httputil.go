@@ -2,9 +2,10 @@ package httputil
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"server/dto"
+
+	"github.com/rs/zerolog/log"
 )
 
 func ResponseOK(w http.ResponseWriter, data any) {
@@ -23,7 +24,7 @@ func ResponseOK(w http.ResponseWriter, data any) {
 	}
 	_, err = w.Write(r)
 	if err != nil {
-		log.Default().Printf("Write response failed: %v", err)
+		log.Err(err).Msg("Write response failed")
 	}
 }
 
@@ -43,6 +44,6 @@ func ResponseError(w http.ResponseWriter, err error) {
 
 	_, err = w.Write(r)
 	if err != nil {
-		log.Default().Printf("Write response failed: %v", err)
+		log.Err(err).Msg("Write response failed")
 	}
 }
