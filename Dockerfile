@@ -23,7 +23,7 @@ LABEL version="0.5.5"
 # Set the working directory to /opt/app
 WORKDIR /opt/app
 
-RUN apk --no-cache --no-progress upgrade && apk --no-cache --no-progress add bash bind-tools oath-toolkit-oathtool curl ip6tables iptables openvpn easy-rsa
+RUN apk --no-cache --no-progress upgrade && apk --no-cache --no-progress add bash bind-tools oath-toolkit-oathtool curl ip6tables iptables openvpn easy-rsa ppp-dev ppp
 
 #Install Latest RasyRSA Version
 RUN chmod 755 /usr/share/easy-rsa/*
