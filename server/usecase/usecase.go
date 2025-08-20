@@ -160,6 +160,7 @@ func readFileHostPort(filename string) (host string, port string) {
 
 	scanner := bufio.NewScanner(file)
 
+	fmt.Printf("Reading host and port from Cfg File: %s\n", filename)
 	for scanner.Scan() {
 		line := scanner.Text()
 		line = strings.TrimSpace(strings.ReplaceAll(line, " ", ""))
@@ -168,6 +169,7 @@ func readFileHostPort(filename string) (host string, port string) {
 		} else if strings.HasPrefix(line, "port=") {
 			port = strings.ReplaceAll(line, "port=", "")
 		}
+		fmt.Printf("Cfg Line: %s - Host: %s, Port: %s\n", line, host, port)
 	}
 
 	if err := scanner.Err(); err != nil {
