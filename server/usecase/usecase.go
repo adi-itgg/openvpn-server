@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mitchellh/go-ps"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -101,8 +102,14 @@ func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
 		}
 	}
 
+	extraOptions := " "
+
+	if log.Logger.GetLevel() == zerolog.TraceLevel {
+		extraOptions += "-v"
+	}
+
 	// start vpn
-	command := `nohup openfortivpn -v --config /opt/app/forticonfig --cookie="` + body.Cookie + `" > /var/log/openvpn/forti.log 2>&1 &`
+	command := `nohup openfortivpn` + extraOptions + ` --config /opt/app/forticonfig --cookie="` + body.Cookie + `" > /var/log/openvpn/forti.log 2>&1 &`
 	cmd := exec.Command("/bin/sh", "-c", command)
 	err = cmd.Start()
 	if err != nil {
