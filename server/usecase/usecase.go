@@ -31,7 +31,7 @@ func (u *Usecase) Status() (*dto.VPNStatusResponse, error) {
 	f, err := os.ReadFile("/var/log/openvpn/forti.log")
 	if err == nil {
 		content := string(f)
-		data.Active = strings.Contains(content, "Tunnel is up and running") && !strings.Contains(content, "VPN disconnected")
+		data.Active = strings.Contains(content, "Tunnel is up and running") && !strings.Contains(content, "VPN disconnected") && !strings.Contains(content, "Logged out.")
 		data.Logs = content
 	} else {
 		log.Err(err).Msg("Error reading file forti.log")
