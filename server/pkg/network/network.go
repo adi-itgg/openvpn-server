@@ -1,6 +1,7 @@
 package network
 
 import (
+	"net"
 	"os/exec"
 	"regexp"
 	"runtime"
@@ -32,4 +33,17 @@ func Ping(host string) string {
 	}
 
 	return ""
+}
+
+func ResolveIPAddress(domain string) string {
+	ips, err := net.LookupIP(domain)
+	if err != nil {
+		return Ping(domain)
+	}
+
+	for _, ip := range ips {
+		return ip.String()
+	}
+
+	return Ping(domain)
 }

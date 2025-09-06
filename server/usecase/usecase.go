@@ -54,7 +54,7 @@ func (u *Usecase) Status() (*dto.VPNStatusResponse, error) {
 		if len(sp) > 1 {
 			port = sp[1]
 		}
-		ip := network.Ping(host)
+		ip := network.ResolveIPAddress(host)
 		if port == "" {
 			ipPortServers = append(ipPortServers, host+" ("+ip+")")
 			continue
