@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"server/dto"
+	"server/pkg/crypto"
 	"server/pkg/network"
 	"strings"
 
@@ -89,16 +90,35 @@ func (u *Usecase) Activate(body *dto.VPNActivateRequest) error {
 		return errors.New("invalid cookie")
 	}
 
+	rCookie := []byte(body.Cookie)
+
+	cookieFile := "/opt/app/forti-cookie.txt"
+	// read current cookie
+	fCookie, err := os.ReadFile(cookieFile)
+	if err != nil {
+		fCookie = []byte("")
+		log.Err(err).Msg("Read file failed forti-cookie.txt")
+	}
+
+	// hash cookie
+	hashFCookie := crypto.HashMD5(fCookie)
+	hashRCookie := crypto.HashMD5(rCookie)
+
+	// validate hash cookie
+	if hashRCookie == hashFCookie {
+		return nil
+	}
+
 	fortiConfigPath := "/opt/app/forticonfig"
 	newContent := readFileAndReplaceHostPort(fortiConfigPath, body.Host, body.Port)
 
-	err := os.WriteFile(fortiConfigPath, []byte(newContent), 0644)
+	err = os.WriteFile(fortiConfigPath, []byte(newContent), 0644)
 	if err != nil {
 		log.Err(err).Msg("Write file failed forticonfig")
 		return err
 	}
 
-	err = os.WriteFile("/opt/app/forti-cookie.txt", []byte(body.Cookie), 0644)
+	err = os.WriteFile(cookieFile, rCookie, 0644)
 	if err != nil {
 		log.Err(err).Msg("Write file failed forti-cookie.txt")
 		return err
