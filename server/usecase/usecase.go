@@ -33,6 +33,24 @@ func (u *Usecase) Status() (*dto.VPNStatusResponse, error) {
 		content := string(f)
 		data.Active = strings.Contains(content, "Tunnel is up and running") && !strings.Contains(content, "VPN disconnected") && !strings.Contains(content, "Logged out.")
 		data.Logs = content
+
+		if data.Active {
+			// find Process
+			processes, err := ps.Processes()
+			if err != nil {
+				log.Err(err).Msg("Error getting processes")
+			}
+			targetProcessName := "openfortivpn"
+			for _, p := range processes {
+				if p.Executable() == targetProcessName {
+					p, err := os.FindProcess(p.Pid())
+					if err == nil && p != nil {
+						data.Active = true
+						break
+					}
+				}
+			}
+		}
 	} else {
 		log.Err(err).Msg("Error reading file forti.log")
 	}
